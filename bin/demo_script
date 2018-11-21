@@ -4,6 +4,8 @@ import asyncio
 import seattle_sunrise
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(seattle_sunrise.light_loop(loop))
-    loop.close()
+    #loop = asyncio.get_event_loop()
+    elc = seattle_sunrise.event_loop_control()#loop)
+    #loop.run_until_complete(elc.light_loop())
+    elc()
+    #loop.close()
