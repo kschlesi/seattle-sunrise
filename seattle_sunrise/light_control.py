@@ -7,6 +7,7 @@ __all__ = []
 import asyncio
 import datetime
 import json
+import uuid
 
 import requests
 
@@ -30,48 +31,71 @@ class LightFlicker:
     def print_time():
         print("In print_time at: ", datetime.datetime.now())
 
+
+base_event = {
+    'event_id': None,
+    'start_time': None,
+    'end_time': None,
+    'action': None,
+    'created': None,
+    'updated': None,
+    'calendar': None,
+    'calendar_id': None,
+}
+
 __all__.append("EventGetter")
 class EventGetter:
     '''
     a placeholder class to define/return some events for testing
     '''
     def __init__(self):
-        self.events = {
-            'a': datetime.datetime.now() + datetime.timedelta(seconds=3),
-            'b': datetime.datetime.now() + datetime.timedelta(seconds=30),
-            'c': datetime.datetime.now() + datetime.timedelta(seconds=18),
-            'd': datetime.datetime.now() + datetime.timedelta(days=60, seconds=3),
-        }
+        self.events = []
+        times = [
+            datetime.datetime.now() + datetime.timedelta(seconds=3),
+            datetime.datetime.now() + datetime.timedelta(seconds=30),
+            datetime.datetime.now() + datetime.timedelta(seconds=18),
+            datetime.datetime.now() + datetime.timedelta(seconds=47),
+        ]
+        for a_time in times:
+            self.events.append(base_event.copy())
+            self.events[-1]['start_time'] = a_time
+            self.events[-1]['event_id'] = uuid.uuid1()
+
     def get_events(self):
         return self.events
 
 __all__.append("event_loop_control")
 class event_loop_control():
     def __init__(self):
-        self.loop = asyncio.get_event_loop()
+        # configurables
         self.event_poll_interval = 10 #seconds
 
-        # pre-schedule an event so I can see it get removed
-        self.tasks = {'fail': self.loop.call_at(self.loop.time()+10000, light_flicker.print_time)}
+        # other member objects
+        self.loop = asyncio.get_event_loop()
+        self.tasks = {}
 
     def __call__(self):
         self.loop.run_until_complete(self.main_loop())
         self.loop.close()
 
-    def _update_tasks(self, new_tasks):
+    def schedule_task(self, a_task):
+        seconds_until_call = self.loop.time() + (a_task['start_time'] - datetime.datetime.now()).total_seconds()
+        self.tasks[a_task['event_id']] = {'cancelable': self.loop.call_at(seconds_until_call, light_flicker.print_time)}
+        self.tasks[a_task['event_id']].update(a_task)
+
+    def update_tasks(self, new_tasks):
 
         # make sure that every item in new_tasks exists in self.tasks (add if missing)
-        for id,a_time in new_tasks.items():
-            if not id in self.tasks:
-                when_to_call = self.loop.time()+(a_time-datetime.datetime.now()).total_seconds()
-                self.tasks[id] = self.loop.call_at(when_to_call, light_flicker.print_time)
+        for a_task in new_tasks:
+            if not a_task['event_id'] in self.tasks:
+                self.schedul_task(a_task)
         print('new tasks added')
 
         # make sure that all existing tasks are in new_tasks (cancel and remove if missing)
         to_pop = []
         for id in self.tasks:
             if not id in new_tasks:
-                self.tasks[id].cancel()
+                self.tasks[id]['cancelable'].cancel()
                 to_pop.append(id)
         for id in to_pop:
             self.tasks.pop(id)
@@ -85,6 +109,7 @@ class event_loop_control():
         while True:
             print('existing tasks are: ', self.tasks)
             new_events = event_getter.get_events()
+            self.update_tasks(new_events)
             print("task list updated")
             count += 1
             print('about to sleep for the {}th time: '.format(count))
