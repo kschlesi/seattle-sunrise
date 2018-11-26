@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+import argparse
+
+import yaml
+
+import seattle_sunrise
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(add_help=True,
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                                    )
+    parser.add_argument('-v',
+                        '--verbose',
+                        default=0,
+                        action='count',
+                        help='increases logging output verbosity level',
+                       )
+    parser.add_argument('-V',
+                        '--version',
+                        action='version',
+                        version=seattle_sunrise.__version__,
+                        help='display seattle_sunrise version',
+                       )
+    parser.add_argument('-c',
+                        '--config',
+                        type=argparse.FileType('r', encoding='UTF-8'),
+                        help='path (absolute or relative) to configuration file',
+                       )
+    args = parser.parse_args()
