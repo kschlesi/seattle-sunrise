@@ -8,6 +8,7 @@ setup(
     scripts = glob.glob('./bin/*'),
     install_requires = [
         'requests',
+        'PyYAML',
     ],
     url='https://github.com/kschlesi/seattle-sunrise',
 )
