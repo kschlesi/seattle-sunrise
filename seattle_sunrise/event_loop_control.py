@@ -1,7 +1,6 @@
 '''
 A class for interacting with z-wave bulbs using HASS
 '''
-
 __all__ = []
 
 import asyncio
@@ -9,17 +8,15 @@ import datetime
 import random
 import uuid
 
+from .base_actor import base_actor
+
 __all__.append("LightFlicker")
-class LightFlicker:
+class LightFlicker(base_actor):
     '''
     a placeholder class with a function to "do an action" in the event loop
     '''
     def __init__(self, action_map={}):
-        self.action_map = action_map
-
-    def do_event(self, an_event):
-        to_do = self.action_map[an_event['action']]
-        to_do(an_event)
+        base_actor.__init__(self, action_map=action_map)
 
     @staticmethod
     def print_time(an_event):

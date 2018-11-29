@@ -1,8 +1,9 @@
 '''
 A class for interacting with z-wave bulbs using HASS
 '''
-
 __all__ = []
+
+from .base_actor import base_actor
 
 # these should be constructed in some reasonable way.
 url_base = "http://192.168.0.11:8123/api/"
@@ -16,12 +17,12 @@ headers = {
 #requests.post(url_base+turn_on_target, json=json.dumps({'brightness':1, 'entity_id': light_entity}))
 
 __all__.append("bulbz_control")
-class bulbz_control():
+class bulbz_control(base_actor):
     '''
-    a placeholder class with a function to "do an action" in the event loop
+    Define a group of "bulbz" and expose some convenient actions to take with them.
     '''
-    def __init__(self, action_map={}):
-        self.action_map = action_map
+    def __init__(self, headers_file, action_map={}, bulbz_list=[]):
+        base_actor.__init__(self, action_map)
 
     def do_event(self, an_event):
         to_do = self.action_map[an_event['action']]
