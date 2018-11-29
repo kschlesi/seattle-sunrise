@@ -6,21 +6,7 @@ __all__ = []
 
 import asyncio
 import datetime
-import json
 import uuid
-
-import requests
-
-# these should be constructed in some reasonable way.
-url_base = "http://192.168.0.11:8123/api/"
-turn_on_target = "services/light/turn_on"
-light_entity = 'light.linear_lb60z1_dimmable_led_light_bulb_level'
-headers = {
-    # this should clearly be from a credential file or something
-    'Authorization': 'Bearer BABBLE_FISH',
-    'content-type': 'application/json',
-}
-#requests.post(url_base+turn_on_target, json=json.dumps({'brightness':1, 'entity_id': light_entity}))
 
 __all__.append("LightFlicker")
 class LightFlicker:
