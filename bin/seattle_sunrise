@@ -22,9 +22,9 @@ if __name__ == "__main__":
                         version=seattle_sunrise.__version__,
                         help='display seattle_sunrise version',
                        )
-    parser.add_argument('-c',
-                        '--config',
-                        type=argparse.FileType('r', encoding='UTF-8'),
-                        help='path (absolute or relative) to configuration file',
-                       )
+#    parser.add_argument('-c',
+#                        '--config',
+#                        type=argparse.FileType('r', encoding='UTF-8'),
+#                        help='path (absolute or relative) to configuration file',
+#                       )
     args = parser.parse_args()

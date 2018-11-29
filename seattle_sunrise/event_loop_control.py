@@ -6,6 +6,7 @@ __all__ = []
 
 import asyncio
 import datetime
+import random
 import uuid
 
 __all__.append("LightFlicker")
@@ -57,17 +58,23 @@ class EventGetter:
 
     def get_events(self):
         self.events = [e for e in self.events if e['end_time']>datetime.datetime.now()]
+        if not self.events:
+            a_time = datetime.datetime.now() + datetime.timedelta(seconds=random.random())
+            self.events.append(base_event.copy())
+            self.events[-1]['start_time'] = a_time
+            self.events[-1]['end_time'] = a_time + datetime.timedelta(seconds=1)
+            self.events[-1]['event_id'] = uuid.uuid1()
         return self.events
 
 __all__.append("event_loop_control")
 class event_loop_control():
-    def __init__(self, event_poll_interval=10, actor_map={}):#, actions_map={}):
+    def __init__(self, event_poll_interval=10, actor_map={}):
         # configurables
         self.event_poll_interval = event_poll_interval #seconds
 
         # other member objects
         self.loop = asyncio.get_event_loop()
-        self.tasks = {}
+        self.events = {}
         self.to_pop = set()
         self.actor_map = actor_map
 
@@ -80,43 +87,45 @@ class event_loop_control():
         self.loop.run_until_complete(self.main_loop())
         self.loop.close()
 
-    def execute_task(self, a_task):
-        to_call = self.actor_map[a_task['calendar']].do_event
-        to_call(a_task)
-        self.to_pop.add(a_task['event_id'])
+    def execute_event(self, an_event):
+        to_call = self.actor_map[an_event['calendar']].do_event
+        to_call(an_event)
+        self.to_pop.add(an_event['event_id'])
 
-    def schedule_task(self, a_task):
-        seconds_until_call = self.loop.time() + (a_task['start_time'] - datetime.datetime.now()).total_seconds()
-        #to_call = self.actor_map[a_task['calendar']].do_event
-        #self.tasks[a_task['event_id']] = {'cancelable': self.loop.call_at(seconds_until_call, to_call, a_task)}
-        self.tasks[a_task['event_id']] = {'cancelable': self.loop.call_at(seconds_until_call, self.execute_task, a_task)}
-        self.tasks[a_task['event_id']].update(a_task)
+    def schedule_event(self, an_event):
+        seconds_until_call = self.loop.time() + (an_event['start_time'] - datetime.datetime.now()).total_seconds()
+        self.events[an_event['event_id']] = {'cancelable': self.loop.call_at(seconds_until_call, self.execute_event, an_event)}
+        self.events[an_event['event_id']].update(an_event)
 
-    def update_tasks(self, new_tasks):
-        # make sure that every item in new_tasks exists in self.tasks (add if missing)
+    def update_events(self, new_events):
+        # make sure that every item in new_events exists in self.events (add if missing)
         add_count = 0
-        for a_task in new_tasks:
-            if not a_task['event_id'] in self.tasks:
-                self.schedule_task(a_task)
+        update_count = 0
+        for an_event in new_events:
+            if not an_event['event_id'] in self.events:
+                self.schedule_event(an_event)
                 add_count += 1
-        print('<{}> new tasks added'.format(add_count))
+            else:
+                if not an_event == self.events[an_event['event_id']]:
+                    self.events[an_event['event_id']]['cancelable'].cancel()
+                    self.events.pop(an_event['event_id'])
+                    self.schedule_event(an_event)
 
-        # ensure that all known tasks are in new_tasks (cancel and remove if not)
-        #self.to_pop = []
-        new_ids = [t['event_id'] for t in new_tasks]
-        for id in self.tasks:
+        # make sure that every item in self.events is in new_events (if not cancel)
+        new_ids = [t['event_id'] for t in new_events]
+        for id in self.events:
             if not id in new_ids:
-                self.tasks[id]['cancelable'].cancel()
+                self.events[id]['cancelable'].cancel()
                 self.to_pop.add(id)
         for id in self.to_pop:
-            self.tasks.pop(id)
+            self.events.pop(id)
         self.to_pop = set()
-        print("<{}> stale events removed".format(len(self.to_pop)))
+        print('<{}> new events added, <{}> existing events updated, <{}> stale events removed'.format(add_count, update_count, len(self.to_pop)))
 
     async def main_loop(self):
         while True:
             new_events = self.get_events()
-            self.update_tasks(new_events)
+            self.update_events(new_events)
             print("about to sleep at: {}".format(datetime.datetime.now()))
-            print("there are <{}> events pending".format(len(self.tasks)))
+            print("there are <{}> events pending".format(len(self.events)))
             await asyncio.sleep(self.event_poll_interval)
