@@ -23,7 +23,7 @@ class LightFlicker:
 
     @staticmethod
     def print_time(an_event):
-        print("In print_time at: {}, with event:\n{}".format(datetime.datetime.now(), an_event))
+        print("In print_time at: {}, with event:\n{}".format(datetime.datetime.now(), an_event['event_id']))
 
 
 base_event = {
@@ -118,9 +118,9 @@ class event_loop_control():
                 self.events[id]['cancelable'].cancel()
                 self.to_pop.add(id)
         for id in self.to_pop:
-            self.events.pop(id)
-        self.to_pop = set()
+            self.events.pop(id, None)
         print('<{}> new events added, <{}> existing events updated, <{}> stale events removed'.format(add_count, update_count, len(self.to_pop)))
+        self.to_pop = set()
 
     async def main_loop(self):
         while True:
