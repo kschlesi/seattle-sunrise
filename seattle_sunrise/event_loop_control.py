@@ -59,7 +59,7 @@ class EventGetter:
             a_time = datetime.datetime.now() + datetime.timedelta(seconds=random.random()*45)
             self.events.append(base_event.copy())
             self.events[-1]['start_time'] = a_time
-            self.events[-1]['end_time'] = a_time + datetime.timedelta(seconds=1)
+            self.events[-1]['end_time'] = a_time + datetime.timedelta(seconds=10)
             self.events[-1]['event_id'] = uuid.uuid1()
         return self.events
 

@@ -6,14 +6,18 @@ import seattle_sunrise
 def a_main_func():
     ## create instances
     eg = seattle_sunrise.EventGetter()
-    lf = seattle_sunrise.bulbz_control(headers_file='/usr/local/secrets/hass_auth.yaml')
+    lf = seattle_sunrise.bulbz_control(
+            headers_file='/usr/local/secrets/hass_auth.yaml',
+            bulbz_list=[
+                'light.linear_lb60z1_dimmable_led_light_bulb_level',
+            ],
+         )
+    lf.action_map={
+        'wake': lf.be_on_interval,
+    }
     elc = seattle_sunrise.event_loop_control()
     ## bind them
     elc.get_events = eg.get_events
-    action_map = {
-        'wake': lf.on_interval,
-    }
-    lf.action_map = action_map
     actor_map = {
         'alarmclock': lf,
     }

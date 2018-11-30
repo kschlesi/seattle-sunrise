@@ -3,7 +3,9 @@ A class for interacting with z-wave bulbs using HASS
 '''
 __all__ = []
 
+import asyncio
 import datetime
+import time
 
 import yaml
 
@@ -70,9 +72,10 @@ class bulbz_control(base_actor):
     def print_time(an_event):
         print("In print_time at: {}, with event:\n{}".format(datetime.datetime.now(), an_event))
 
-    def on_interval(self, an_event):
-        print("Turn on")
-        await asyncio.sleep((an_event['end_time'] - datetime.datetime.now()).total_seconds())
+    def be_on_interval(self, an_event):
+        to_sleep = (an_event['end_time'] - datetime.datetime.now()).total_seconds()
+        print("Turn on (sleep {})".format(to_sleep))
+        time.sleep(to_sleep)
         print("-------> Turn off")
 
     def fade_on(self, an_event):
