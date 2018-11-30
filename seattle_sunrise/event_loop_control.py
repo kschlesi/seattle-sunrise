@@ -43,20 +43,20 @@ class EventGetter:
         self.events = []
         times = [
             datetime.datetime.now() + datetime.timedelta(seconds=3),
-            datetime.datetime.now() + datetime.timedelta(seconds=30),
+            #datetime.datetime.now() + datetime.timedelta(seconds=30),
             datetime.datetime.now() + datetime.timedelta(seconds=18),
-            datetime.datetime.now() + datetime.timedelta(seconds=47),
+            #datetime.datetime.now() + datetime.timedelta(seconds=47),
         ]
         for a_time in times:
             self.events.append(base_event.copy())
             self.events[-1]['start_time'] = a_time
-            self.events[-1]['end_time'] = a_time + datetime.timedelta(seconds=1)
+            self.events[-1]['end_time'] = a_time + datetime.timedelta(seconds=10)
             self.events[-1]['event_id'] = uuid.uuid1()
 
     def get_events(self):
         self.events = [e for e in self.events if e['end_time']>datetime.datetime.now()]
         if not self.events:
-            a_time = datetime.datetime.now() + datetime.timedelta(seconds=random.random())
+            a_time = datetime.datetime.now() + datetime.timedelta(seconds=random.random()*45)
             self.events.append(base_event.copy())
             self.events[-1]['start_time'] = a_time
             self.events[-1]['end_time'] = a_time + datetime.timedelta(seconds=1)

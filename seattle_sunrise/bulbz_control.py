@@ -3,6 +3,8 @@ A class for interacting with z-wave bulbs using HASS
 '''
 __all__ = []
 
+import datetime
+
 import yaml
 
 from .base_actor import base_actor
@@ -42,17 +44,36 @@ class bulbz_control(base_actor):
 
     @property
     def base_target(self):
-        return "{}:{}/{}/".format(self.hass_api['host'], self.hass_api['port'], self.hass_api['api_uri'])
+        return "{}:{}/{}".format(self.hass_api['host'], self.hass_api['port'], self.hass_api['api_uri'])
 
+    # needs to look like: `r = requests.post("http://192.168.0.11:8123/api/services/light/turn_on", json={'entity_id':light_entity, 'brightness': 1}, headers=headers)`
     def set_output(self, bulb, level):
         ret = requests.post('/'.join([self.base_target,self.hass_api['operations']['turn_on']]),
-                            json=json.dumps({'brightness':1, 'entity_id': light_entity}),
+                            json={'brightness':level, 'entity_id': light_entity},
                             headers=self.headers,
                            )
+        if not r.status_code in [200, 201]:
+            raise ValueError("request received non-success code")
+
+    def turn_on(self, bulb):
+        self.set_output(bulb, 255)
+
+    def turn_off(self, bulb):
+        ret = requests.post('/'.join([self.base_target,self.hass_api['operations']['turn_off']]),
+                            json={'brightness':level, 'entity_id': light_entity},
+                            headers=self.headers,
+                           )
+        if not r.status_code in [200, 201]:
+            raise ValueError("request received non-success code")
 
     @staticmethod
     def print_time(an_event):
         print("In print_time at: {}, with event:\n{}".format(datetime.datetime.now(), an_event))
+
+    def on_interval(self, an_event):
+        print("Turn on")
+        await asyncio.sleep((an_event['end_time'] - datetime.datetime.now()).total_seconds())
+        print("-------> Turn off")
 
     def fade_on(self, an_event):
         pass
