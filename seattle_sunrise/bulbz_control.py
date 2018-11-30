@@ -7,6 +7,7 @@ import asyncio
 import datetime
 import time
 
+import requests
 import yaml
 
 from .base_actor import base_actor
@@ -50,11 +51,15 @@ class bulbz_control(base_actor):
 
     # needs to look like: `r = requests.post("http://192.168.0.11:8123/api/services/light/turn_on", json={'entity_id':light_entity, 'brightness': 1}, headers=headers)`
     def set_output(self, bulb, level):
+        url = '/'.join([self.base_target,self.hass_api['operations']['turn_on']])
+        print("post to: [{}]".format(url))
+        # this next line needs some error handling
         ret = requests.post('/'.join([self.base_target,self.hass_api['operations']['turn_on']]),
                             json={'brightness':level, 'entity_id': light_entity},
                             headers=self.headers,
                            )
-        if not r.status_code in [200, 201]:
+        if not ret.status_code in [200, 201]:
+            print(ret.request)
             raise ValueError("request received non-success code")
 
     def turn_on(self, bulb):
@@ -62,10 +67,10 @@ class bulbz_control(base_actor):
 
     def turn_off(self, bulb):
         ret = requests.post('/'.join([self.base_target,self.hass_api['operations']['turn_off']]),
-                            json={'brightness':level, 'entity_id': light_entity},
+                            json={'entity_id': light_entity},
                             headers=self.headers,
                            )
-        if not r.status_code in [200, 201]:
+        if not ret.status_code in [200, 201]:
             raise ValueError("request received non-success code")
 
     @staticmethod
@@ -75,8 +80,12 @@ class bulbz_control(base_actor):
     def be_on_interval(self, an_event):
         to_sleep = (an_event['end_time'] - datetime.datetime.now()).total_seconds()
         print("Turn on (sleep {})".format(to_sleep))
+        for a_bulb in self.list_of_bulbz:
+            self.turn_on(a_bulb)
         time.sleep(to_sleep)
         print("-------> Turn off")
+        for a_bulb in self.list_of_bulbz:
+            self.turn_off(a_bulb)
 
     def fade_on(self, an_event):
         pass

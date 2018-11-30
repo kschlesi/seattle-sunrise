@@ -11,6 +11,15 @@ def a_main_func():
             bulbz_list=[
                 'light.linear_lb60z1_dimmable_led_light_bulb_level',
             ],
+            hass_api_map={
+                'host': 'http://192.168.0.11',
+                'port': 8123,
+                'api_uri': 'api',
+                'operations': {
+                    'turn_on': 'services/light/turn_on',
+                    'turn_off': 'services/light/turn_off',
+                },
+            },
          )
     lf.action_map={
         'wake': lf.be_on_interval,
