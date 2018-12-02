@@ -22,7 +22,7 @@ def a_main_func():
             },
          )
     lf.action_map={
-        'wake': lf.be_on_interval,
+        'wake': lf.sunrise,
     }
     elc = seattle_sunrise.event_loop_control()
     ## bind them

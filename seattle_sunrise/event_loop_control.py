@@ -42,15 +42,15 @@ class EventGetter:
     def __init__(self):
         self.events = []
         times = [
-            datetime.datetime.now() + datetime.timedelta(seconds=3),
+            datetime.datetime.now() + datetime.timedelta(seconds=15),
             #datetime.datetime.now() + datetime.timedelta(seconds=30),
-            datetime.datetime.now() + datetime.timedelta(seconds=18),
+            #datetime.datetime.now() + datetime.timedelta(seconds=30),
             #datetime.datetime.now() + datetime.timedelta(seconds=47),
         ]
         for a_time in times:
             self.events.append(base_event.copy())
             self.events[-1]['start_time'] = a_time
-            self.events[-1]['end_time'] = a_time + datetime.timedelta(seconds=10)
+            self.events[-1]['end_time'] = a_time + datetime.timedelta(seconds=30)
             self.events[-1]['event_id'] = uuid.uuid1()
 
     def get_events(self):
