@@ -9,6 +9,9 @@ setup(
     install_requires = [
         'requests',
         'PyYAML',
+        'googleapiclient',
+        'httplib2',
+        'oauth2client',
     ],
     url='https://github.com/kschlesi/seattle-sunrise',
 )
