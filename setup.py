@@ -12,6 +12,7 @@ setup(
         'google-api-python-client',
         'httplib2',
         'oauth2client',
+        'pytz',
     ],
     url='https://github.com/kschlesi/seattle-sunrise',
 )
