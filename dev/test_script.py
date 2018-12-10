@@ -1,6 +1,6 @@
 from calendar_reader import CalendarReader
 
-cr = CalendarReader(credentials_path='../../tokens')
+cr = seattle_sunrise.CalendarReader(credendials_path='var/seattle_sunrise/secrets')
 
 all_events = cr.get_scheduled_events()
 
