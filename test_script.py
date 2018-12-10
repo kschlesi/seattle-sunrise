@@ -1,4 +1,4 @@
-from calendar_reader import CalendarReader
+import seattle_sunrise
 
 cr = seattle_sunrise.CalendarReader(credendials_path='var/seattle_sunrise/secrets')
 
