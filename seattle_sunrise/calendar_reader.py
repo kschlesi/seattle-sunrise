@@ -27,6 +27,8 @@ class CalendarReader():
         print('trying token file...')
         store = file.Storage('%s/%s'%(credentials_path, token_file))
         creds = store.get()
+        print('creds exist' if creds else 'no creds exist')
+        print('tokens invalid' if creds.invalid else 'tokens valid')
         if not creds or creds.invalid:
             print('generating new tokens...')
             flow = client.flow_from_clientsecrets('%s/%s'%(credentials_path, credentials_file), self.scopes)
