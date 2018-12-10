@@ -1,6 +1,6 @@
-import seattle_sunrise
+import calendar_reader
 
-cr = seattle_sunrise.CalendarReader(credendials_path='var/seattle_sunrise/secrets')
+cr = calendar_reader.CalendarReader(credentials_path='/var/seattle_sunrise/secrets')
 
 all_events = cr.get_scheduled_events()
 
