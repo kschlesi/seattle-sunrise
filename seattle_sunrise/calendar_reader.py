@@ -97,4 +97,4 @@ def parse_gtime(dt_str, type='datetime'):
         return datetime.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%S.%fZ')
     else: # has UTC offset
         c = dt_str.rfind(':') # have to remove final : in string :(
-        return datetime.datetime.strptime(dt_str[:c] + dt_str[c+1:], '%Y-%m-%dT%H:%M:%S%z').astimezone(pytz.utc)
+        return datetime.datetime.strptime(dt_str[:c] + dt_str[c+1:], '%Y-%m-%dT%H:%M:%S%z').astimezone(pytz.utc).replace(tzinfo=None)
