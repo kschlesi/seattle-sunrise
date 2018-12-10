@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+
+#import asyncio
+import seattle_sunrise
+
+def a_main_func():
+    ## create instances
+    eg = seattle_sunrise.EventGetter()
+    lf = seattle_sunrise.bulbz_control(
+            headers_file='/usr/local/secrets/hass_auth.yaml',
+            bulbz_list=[
+                'light.linear_lb60z1_dimmable_led_light_bulb_level',
+            ],
+            hass_api_map={
+                'host': 'http://192.168.0.11',
+                'port': 8123,
+                'api_uri': 'api',
+                'operations': {
+                    'turn_on': 'services/light/turn_on',
+                    'turn_off': 'services/light/turn_off',
+                },
+            },
+         )
+    lf.action_map={
+        'wake': lf.sunrise,
+    }
+    lf.fade_on_time = 30. # don't actually want it this short, 1200 s is more like it for realz
+    elc = seattle_sunrise.event_loop_control()
+    ## bind them
+    elc.get_events = eg.get_events
+    actor_map = {
+        'alarmclock': lf,
+    }
+    elc.actor_map = actor_map
+    ## execute
+    elc()
+
+if __name__ == "__main__":
+    a_main_func()
