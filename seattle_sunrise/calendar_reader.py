@@ -24,7 +24,6 @@ class CalendarReader():
     def get_credentials_with_browser_flow(self, credentials_path, token_file, credentials_file):
         '''Run authorization procedure. Use valid access token if it exists;
            otherwise, use refresh token to generate new access token.'''
-        print('trying token file...')
         store = file.Storage('%s/%s'%(credentials_path, token_file))
         creds = store.get()
         print('creds exist' if creds else 'no creds exist')
@@ -44,11 +43,9 @@ class CalendarReader():
         if not end_datetime:
             end_datetime = start_datetime + datetime.timedelta(days = 7)
 
-        start_str = start_datetime.isoformat() + 'Z' # 'Z' indicates UTC time
-        end_str = end_datetime.isoformat() + 'Z'
         events_result = self.calendar.events().list(calendarId=calendar_name,
-                                                    timeMin=start_str,
-                                                    timeMax=end_str,
+                                                    timeMin=start_datetime.isoformat() + 'Z', # 'Z' indicates UTC time
+                                                    timeMax=end_datetime.isoformat() + 'Z',
                                                     singleEvents=True,
                                                     orderBy='startTime',
                                                     **kwargs).execute()
@@ -66,22 +63,37 @@ class CalendarReader():
                                          end_datetime=end_datetime,
                                          calendar_name=c['id'],
                                          **kwargs)
-                all_events.extend([self.parse_event(event, c['summary'], c['id']) for event in events])
+                all_events.extend([self.parse_event(event, c['summary'], c['id']) for event in events
+                                                                                  if is_valid(event)])
 
         return all_events # list of dicts
 
     def parse_event(self, event, calendar=None, calendar_id=None):
         '''Takes an input event resource from google calendar API and converts
            it to the desired output (a dict)'''
-        # start time, end time, event name, event duration? ...
         return { 'event_id'   : event['id'],
-                 'start_time' : event['start']['dateTime'] if 'dateTime' in event['start'].keys()
-                                                           else event['start']['date'],
-                 'end_time'   : event['end']['dateTime'] if 'dateTime' in event['end'].keys()
-                                                         else event['end']['date'],
+                 'start_time' : parse_gtime(event['start']['dateTime']) if 'dateTime' in event['start'].keys()
+                                                                        else parse_gtime(event['start']['date'], 'date'),
+                 'end_time'   : parse_gtime(event['end']['dateTime'])   if 'dateTime' in event['end'].keys()
+                                                                        else parse_gtime(event['end']['date'], 'date'),
                  'action'     : event['summary'],
-                 'created'    : event['created'],
-                 'updated'    : event['updated'],
+                 'created'    : parse_gtime(event['created']),
+                 'updated'    : parse_gtime(event['updated']),
                  'calendar'   : calendar,
                  'calendar_id': calendar_id
                }
+
+def is_valid(event):
+    '''determines whether event is valid (for now, this means it has start and end datetimes)'''
+    return 'dateTime' in event['start'].keys() and 'dateTime' in event['end'].keys()
+
+def parse_gtime(dt_str, type='datetime'):
+    '''parses stupid google style datetime string'''
+    if type=='date':
+        return datetime.datetime.strptime(dt_str, '%Y-%m-%d')
+    # else, treat as datetime
+    if dt_str[-1] == 'Z': # UTC time
+        return datetime.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+    else: # has UTC offset
+        c = dt_str.rfind(':') # have to remove final : in string :(
+        return datetime.datetime.strptime(dt_str[:c] + dt_str[c+1:], '%Y-%m-%dT%H:%M:%S%z')
