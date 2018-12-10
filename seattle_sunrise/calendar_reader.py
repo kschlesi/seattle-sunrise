@@ -1,27 +1,33 @@
+'''
+A class for reading scheduled events from a google calendar
+Requires proper auth tokens for oauth2 in an external directory
+'''
+__all__ = []
+
 import datetime
 import requests
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
 
+__all__.append('CalendarReader')
 class CalendarReader():
 
     def __init__(self,
-                 cred_path,
+                 credentials_path,
                  token_file='token.json',
                  credentials_file='credentials.json'):
         self.scopes = 'https://www.googleapis.com/auth/calendar.readonly'
-        creds = self.get_credentials(cred_path, token_file, credentials_file)
+        creds = self.get_credentials_with_browser_flow(credentials_path, token_file, credentials_file)
         self.calendar = build('calendar', 'v3', http=creds.authorize(Http()))
-        #self.device_id_map = self.get_device_id_map()
 
-    def get_credentials(self, cred_path, token_file, credentials_file):
+    def get_credentials_with_browser_flow(self, credentials_path, token_file, credentials_file):
         '''Run authorization procedure. Use valid access token if it exists;
            otherwise, use refresh token to generate new access token.'''
-        store = file.Storage('%s/%s'%(cred_path, token_file))
+        store = file.Storage('%s/%s'%(credentials_path, token_file))
         creds = store.get()
         if not creds or creds.invalid:
-            flow = client.flow_from_clientsecrets('%s/%s'%(cred_path, credentials_file), self.scopes)
+            flow = client.flow_from_clientsecrets('%s/%s'%(credentials_path, credentials_file), self.scopes)
             creds = tools.run_flow(flow, store)
         return creds
 
@@ -58,7 +64,7 @@ class CalendarReader():
                                          **kwargs)
                 all_events.extend([self.parse_event(event, c['summary'], c['id']) for event in events])
 
-        return all_events # list of dicts for now
+        return all_events # list of dicts
 
     def parse_event(self, event, calendar=None, calendar_id=None):
         '''Takes an input event resource from google calendar API and converts

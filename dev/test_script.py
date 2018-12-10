@@ -1,6 +1,6 @@
 from calendar_reader import CalendarReader
 
-cr = CalendarReader(cred_path='../../tokens')
+cr = CalendarReader(credentials_path='../../tokens')
 
 all_events = cr.get_scheduled_events()
 
