@@ -90,7 +90,7 @@ class event_loop_control():
         self.to_pop.add(an_event['event_id'])
 
     def schedule_event(self, an_event):
-        seconds_until_call = self.loop.time() + (an_event['start_time'] - datetime.datetime.now()).total_seconds()
+        seconds_until_call = self.loop.time() + (an_event['start_time'] - datetime.datetime.utcnow()).total_seconds()
         self.events[an_event['event_id']] = {'cancelable': self.loop.call_at(seconds_until_call, self.execute_event, an_event)}
         self.events[an_event['event_id']].update(an_event)
 
