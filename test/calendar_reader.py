@@ -59,12 +59,12 @@ class CalendarReader():
 
         calendar_list = self.calendar.calendarList().list().execute()
         for c in calendar_list['items']:
-            if not device_name or device_name == c['summary']:
+            if not device_name or device_name == c.get('summary'):
                 events = self.get_events(start_datetime=start_datetime,
                                          end_datetime=end_datetime,
                                          calendar_name=c['id'],
                                          **kwargs)
-                all_events.extend([self.parse_event(event, c['summary'], c['id']) for event in events
+                all_events.extend([self.parse_event(event, c.get('summary'), c['id']) for event in events
                                                                                   if is_valid(event)])
 
         return all_events # list of dicts
@@ -97,4 +97,4 @@ def parse_gtime(dt_str, type='datetime'):
         return datetime.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%S.%fZ')
     else: # has UTC offset
         c = dt_str.rfind(':') # have to remove final : in string :(
-        return datetime.datetime.strptime(dt_str[:c] + dt_str[c+1:], '%Y-%m-%dT%H:%M:%S%z').astimezone(pytz.utc)
+        return datetime.datetime.strptime(dt_str[:c] + dt_str[c+1:], '%Y-%m-%dT%H:%M:%S%z').astimezone(pytz.utc).replace(tzinfo=None)
