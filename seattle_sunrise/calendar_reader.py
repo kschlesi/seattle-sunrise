@@ -24,9 +24,11 @@ class CalendarReader():
     def get_credentials_with_browser_flow(self, credentials_path, token_file, credentials_file):
         '''Run authorization procedure. Use valid access token if it exists;
            otherwise, use refresh token to generate new access token.'''
+        print('trying token file...')
         store = file.Storage('%s/%s'%(credentials_path, token_file))
         creds = store.get()
         if not creds or creds.invalid:
+            print('generating new tokens...')
             flow = client.flow_from_clientsecrets('%s/%s'%(credentials_path, credentials_file), self.scopes)
             creds = tools.run_flow(flow, store)
         return creds
