@@ -5,4 +5,7 @@ services:
       build: .
       volumes:
         - "/var/seattle_sunrise/secrets:/var/seattle_sunrise/secrets"
+        - "./seattle_sunrise:/usr/local/src/seattle_sunrise"
+        - "./setup.py:/usr/local/src/setup.py"
+        - "./bin:/usr/local/src/bin"
       command: ["basic_alarm"]
