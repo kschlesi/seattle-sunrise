@@ -5,6 +5,7 @@ import seattle_sunrise
 
 def a_main_func():
     ## create instances
+    print('creating calendar...')
     cr = seattle_sunrise.CalendarReader(credendials_path='var/seattle_sunrise/secrets')
     print('calendar created!')
     lf = seattle_sunrise.bulbz_control(
