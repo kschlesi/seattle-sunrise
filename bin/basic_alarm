@@ -26,12 +26,11 @@ def a_main_func():
     lf.action_map={
         'wake': lf.sunrise,
     }
-    lf.fade_on_time = 30. # don't actually want it this short, 1200 s is more like it for realz
     elc = seattle_sunrise.event_loop_control()
     ## bind them
     elc.get_events = cr.get_scheduled_events
     actor_map = {
-        'Seattle Sunrise': lf,
+        'Bedroom Light': lf,
     }
     elc.actor_map = actor_map
     ## execute
