@@ -9,7 +9,7 @@ setup(
     install_requires = [
         'requests',
         'PyYAML',
-        'googleapiclient',
+        'google-api-python-client',
         'httplib2',
         'oauth2client',
     ],
