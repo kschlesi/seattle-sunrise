@@ -1,0 +1,8 @@
+version: "2"
+
+services:
+    sunrise:
+      build: .
+      volumes:
+        - "/var/seattle_sunrise/secrets:/var/seattle_sunrise/secrets"
+      command: ["basic_alarm"]

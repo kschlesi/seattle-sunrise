@@ -8,7 +8,7 @@ def a_main_func():
     cr = seattle_sunrise.CalendarReader(credendials_path='var/seattle_sunrise/secrets')
     print('calendar created!')
     lf = seattle_sunrise.bulbz_control(
-            headers_file='/usr/local/secrets/hass_auth.yaml',
+            headers_file='/var/seattle_sunrise/secrets/hass_auth.yaml',
             bulbz_list=[
                 'light.linear_lb60z1_dimmable_led_light_bulb_level',
             ],
