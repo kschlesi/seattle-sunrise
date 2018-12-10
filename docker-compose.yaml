@@ -9,3 +9,4 @@ services:
         - "./setup.py:/usr/local/src/setup.py"
         - "./bin:/usr/local/src/bin"
       command: ["basic_alarm"]
+      network_mode: "host"
