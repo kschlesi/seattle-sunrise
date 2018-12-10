@@ -77,7 +77,7 @@ class CalendarReader():
                                                                         else parse_gtime(event['start']['date'], 'date'),
                  'end_time'   : parse_gtime(event['end']['dateTime'])   if 'dateTime' in event['end'].keys()
                                                                         else parse_gtime(event['end']['date'], 'date'),
-                 'action'     : event['summary'],
+                 'action'     : event.get('summary'),
                  'created'    : parse_gtime(event['created']),
                  'updated'    : parse_gtime(event['updated']),
                  'calendar'   : calendar,
