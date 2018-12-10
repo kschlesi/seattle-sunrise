@@ -31,7 +31,7 @@ def a_main_func():
     ## bind them
     elc.get_events = cr.get_scheduled_events
     actor_map = {
-        'alarmclock': lf,
+        'Seattle Sunrise': lf,
     }
     elc.actor_map = actor_map
     ## execute
