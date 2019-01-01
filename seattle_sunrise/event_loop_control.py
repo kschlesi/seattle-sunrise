@@ -122,7 +122,10 @@ class event_loop_control():
     async def main_loop(self):
         while True:
             new_events = self.get_events()
-            self.update_events(new_events)
+            if new_events is None:
+                print("WARNING: failed to retrieve events from calendar")
+            else:
+                self.update_events(new_events)
             print("about to sleep at: {}".format(datetime.datetime.now()))
             print("there are <{}> events pending".format(len(self.events)))
             await asyncio.sleep(self.event_poll_interval)
