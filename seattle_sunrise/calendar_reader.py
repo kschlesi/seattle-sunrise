@@ -11,6 +11,22 @@ from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
 
+def error_logger(func, *args, **kwargs):
+    '''executes a function; catches errors and logs them'''
+    def new_func(*args, **kwargs):
+        try:
+            response = func(*args, **kwargs)
+        except Exception as e:
+            # log error (add message?)
+            print('ERROR ({}): {} caught in calendar_reader.{}'.format(datetime.datetime.utcnow(),
+                                                                       e.__class__.__name__,
+                                                                       func.__name__
+                                                                       ))
+            return None
+        else:
+            return response
+    return new_func
+
 __all__.append('CalendarReader')
 class CalendarReader():
 
@@ -35,6 +51,7 @@ class CalendarReader():
             creds = tools.run_flow(flow, store)
         return creds
 
+    @error_logger
     def get_events(self, start_datetime=None, end_datetime=None, calendar_name='primary', **kwargs):
         '''Return all events and metadata between start and end datetimes.'''
 
@@ -52,6 +69,7 @@ class CalendarReader():
                                                     **kwargs).execute()
         return events_result.get('items', [])
 
+    @error_logger
     def get_scheduled_events(self, start_datetime=None, end_datetime=None, device_name=None, **kwargs):
         '''Given a device name and time range, get / parse / return all scheduled events.
            If no device name if given, default to all available calendars.'''
@@ -64,9 +82,10 @@ class CalendarReader():
                                          end_datetime=end_datetime,
                                          calendar_name=c['id'],
                                          **kwargs)
+                if events is None:
+                    raise TypeError('get_events failed to return events')
                 all_events.extend([self.parse_event(event, c['summary'], c['id']) for event in events
                                                                                   if is_valid(event)])
-
         return all_events # list of dicts
 
     def parse_event(self, event, calendar=None, calendar_id=None):
@@ -83,6 +102,7 @@ class CalendarReader():
                  'calendar'   : calendar,
                  'calendar_id': calendar_id
                }
+
 
 def is_valid(event):
     '''determines whether event is valid (for now, this means it has start and end datetimes)'''
